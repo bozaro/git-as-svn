@@ -1,0 +1,34 @@
+Port ${SSH_PORT}
+Protocol 2
+
+HostKey /data/ssh/ssh_host_rsa_key
+HostKey /data/ssh/ssh_host_ecdsa_key
+HostKey /data/ssh/ssh_host_ed25519_key
+
+# Logging
+#SyslogFacility AUTH
+#LogLevel INFO
+
+PermitRootLogin no
+#MaxAuthTries 6
+#MaxSessions 10
+
+PubkeyAuthentication yes
+
+AuthorizedKeysFile	.ssh/authorized_keys
+
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+
+AllowAgentForwarding no
+AllowTcpForwarding no
+PrintMotd no
+PermitTTY no
+PermitUserEnvironment no
+UseDNS no
+
+# no default banner path
+Banner none
+
+# override default of no subsystems
+Subsystem	sftp	/usr/lib/ssh/sftp-server

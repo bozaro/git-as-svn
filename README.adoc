@@ -29,7 +29,19 @@ From the root of the source tree, run:
 ./gradlew assembleDist
 ----
 
-Distribution files will be created in `build/distributions` directory.
+Distribution files will be created in `build/distributions` directory. This will run all distribution tasks.
+
+If you only want a specific distribution, run:
+
+----
+./gradlew <DIST TASK> [<DIST TASK>..]
+----
+
+Where `<DIST TASK>` is one of:
+* `distDeb` - Debian package
+* `distDocker` - BZip2 compressed Docker image.
+* `distTar` - BZip2 compressed Tar archive
+* `distZip` - Zip archive
 
 == Running from source
 

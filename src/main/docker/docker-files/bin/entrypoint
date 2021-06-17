@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Fix $GAS_USER
+if [ "$GAS_USER" != "git" ]; then
+    sed -i -e "s/^git\:/^$GAS_USER:/g" /etc/passwd
+    sed -i -e "s/\\([:,]\\)git/\\1$GAS_USER:/g" /etc/group
+fi
+
+# Fix $GAS_GROUP
+if [ "$GAS_GROUP" != "git" ]; then
+    sed -i -e "s/^git\\:/^$GAS_GROUP:/g" /etc/group
+fi
+
+# Fix $UID
+OLD_UID=$(id -u $GAS_USER)
+if [ -n "$UID" ] && [ "$UID" != "$OLD_UID" ]; then
+    sed -i -e "s/^\\($GAS_USER:\\*:\\)$OLD_UID:/\\1$UID:/g" /etc/passwd
+fi
+
+# Fix $GID
+OLD_GID=$(id -g $GAS_GROUP)
+if [ -n "$GID" ] && [ "$GID" != "$OLD_GID" ]; then
+    sed -i -e "s/^\\($GAS_USER:\\*:$UID:\\)$OLD_GID/\\1$GID:/g" /etc/passwd
+    sed -i -e "s/^\\($GAS_GROUP:x:\\)$OLD_GID:/\\1$GID:/g" /etc/group
+fi
+
+exec s6-svscan /etc/s6

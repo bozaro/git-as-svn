@@ -1,0 +1,11 @@
+#!/bin/sh
+
+[ ! -d /data/cache ] && mkdir /data/cache
+[ ! -f /data/config.yml ] && cp /usr/share/git-as-svn/templates/config.yml /data/config.yml
+
+chown -R $GAS_USER:$GAS_GROUP /data/
+
+[ '0' = "$(stat -c '%u' /var/git/repositories)" ] && chown $GAS_USER:$GAS_GROUP /var/git/repositories
+[ '0' = "$(stat -c '%u' /var/git/hooks)"        ] && chown $GAS_USER:$GAS_GROUP /var/git/hooks
+[ '0' = "$(stat -c '%u' /var/git/lfs-objects)"  ] && chown $GAS_USER:$GAS_GROUP /var/git/lfs-objects
+[ '0' = "$(stat -c '%u' /var/git/ssh-real)"     ] && chown $GAS_USER:$GAS_GROUP /var/git/ssh-real

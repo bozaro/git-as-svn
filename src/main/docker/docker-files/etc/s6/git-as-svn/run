@@ -1,0 +1,4 @@
+#!/bin/sh
+./setup
+cd /data
+exec s6-setuidgid $GAS_USER git-as-svn -c /data/config.yml

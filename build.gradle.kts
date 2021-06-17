@@ -241,8 +241,32 @@ val distDeb by tasks.registering(Copy::class) {
     into("$buildDir/distributions/debian_debian")
 }
 
+val dockerControl by tasks.registering(Copy::class) {
+    from("$projectDir/src/main/docker")
+    into(file("$buildDir"))
+}
+
+val compileDocker by tasks.registering(Exec::class) {
+    dependsOn(tasks.installDist, dockerControl)
+
+    workingDir = file("$buildDir")
+    executable = "docker"
+    args("build", "-t", "local/git-as-svn:latest", ".")
+}
+
+val distDocker by tasks.registering(Exec::class) {
+    group = "distribution"
+    dependsOn(compileDocker)
+
+    workingDir = file("$buildDir/distributions")
+    executable = "sh"
+    args("-c", "docker image save local/git-as-svn:latest | bzip2 > ${project.name}_${project.version}.docker.tbz2")
+}
+
 tasks.assembleDist {
     dependsOn(distDeb)
+    dependsOn(distDocker)
+    dependsOn(tasks.distTar)
 }
 
 tasks.distZip {

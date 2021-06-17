@@ -1,0 +1,22 @@
+#!/bin/sh
+
+[ ! -d /data/ssh ] && mkdir -p /data/ssh
+[ ! -f /data/ssh/ssh_host_ed25519_key ] && \
+    ssh-keygen -t ed25519 -f /data/ssh/ssh_host_ed25519_key -N "" >/dev/null
+
+[ ! -f /data/ssh/ssh_host_ecdsa_key ] && \
+    ssh-keygen -t ecdsa -f /data/ssh/ssh_host_ecdsa_key -N "" >/dev/null
+
+[ ! -f /data/ssh/ssh_host_rsa_key ] && \
+    ssh-keygen -t rsa -f /data/ssh/ssh_host_rsa_key -N "" >/dev/null
+
+if [ ! -f /etc/ssh/sshd_config ]; then
+    SSH_PORT=${SSH_PORT:-"22"} \
+    envsubst < /usr/share/git-as-svn/templates/sshd_config.tmpl > /etc/ssh/sshd_config
+
+    chmod 644 /etc/ssh/sshd_config
+fi
+
+chown root:root /data/ssh/*
+chmod 700 /data/ssh
+chmod 600 /data/ssh/*
