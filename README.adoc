@@ -1,0 +1,38 @@
+= git-as-svn
+:project-handle: git-as-svn
+:slug: bozaro/{project-handle}
+:uri-project: https://github.com/{slug}
+:uri-ci: {uri-project}/actions?query=branch%3Amaster
+
+image:{uri-project}/workflows/CI/badge.svg?branch=master[Build Status,link={uri-ci}]
+image:https://img.shields.io/github/release/{slug}.svg[Download,link="{uri-project}/releases/latest"]
+image:https://badges.gitter.im/Join%20Chat.svg[Gitter chat,link="https://gitter.im/{slug}?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+
+== What is it?
+
+git-as-svn emulates Subversion repository on top of Git repository.
+
+It allows you to work with Git repositories using any tool compatible with Subversion 1.8+: console `svn`, TortoiseSVN, SvnKit, SmartSVN, etc.
+
+== Documentation
+
+git-as-svn user manual includes installation and configuration instructions:
+https://bozaro.github.io/git-as-svn/htmlsingle/git-as-svn.html[HTML],
+https://bozaro.github.io/git-as-svn/git-as-svn.pdf[PDF],
+https://bozaro.github.io/git-as-svn/git-as-svn.epub[EPUB]
+
+== Building from source
+
+From the root of the source tree, run:
+
+----
+./gradlew assembleDist
+----
+
+Distribution files will be created in `build/distributions` directory.
+
+== Running from source
+
+----
+./gradlew run
+----

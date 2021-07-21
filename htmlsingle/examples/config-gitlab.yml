@@ -1,0 +1,130 @@
+!config:
+
+# Specifies IP to listen to for svn:// connections
+# Default: 0.0.0.0
+#
+# host: 0.0.0.0
+
+# Specifies port number to listen to for svn:// connections
+# Default: 3690
+#
+# port: 3690
+
+# Subversion realm name. Subversion uses this for credentials caching
+# Default: git-as-svn realm
+#
+# realm: git-as-svn realm
+
+# Traffic compression level. Supported values: LZ4, Zlib, None
+# Default: LZ4
+#
+# compressionLevel: LZ4
+
+# If enabled, git-as-svn indexed repositories in parallel during startup
+# This results in higher memory usage so may require adjustments to JVM memory options
+# Default: true
+#
+# parallelIndexing: true
+
+# Sets cache location
+cacheConfig: !persistentCache
+  path: /var/cache/git-as-svn/git-as-svn.mapdb
+
+# Tells git-as-svn to use GitLab API for repository list
+repositoryMapping: !gitlabMapping
+
+  # Filesystem location where GitLab stores repositories
+  # Note that git-as-svn requires write access
+  # You normally do not need to change it
+  # Default: /var/opt/gitlab/git-data/repositories/
+  #
+  # path: /var/opt/gitlab/git-data/repositories/
+
+  # Common settings for all repositories exposed to svn://
+  #
+  template:
+    # renameDetection: true
+    # emptyDirs: Disabled
+    pusher: !pushEmbedded
+      # This tells git-as-svn where GitLab commit hooks are located
+      hooksPath: /opt/gitlab/embedded/service/gitaly-ruby/git-hooks
+
+# Tells git-as-svn to authenticate users against GitLab
+userDB: !gitlabUsers {}
+
+shared:
+
+  # git-as-svn builtin web server
+  # It is used for GitLab system hook for repository creation/deletion notifications
+  # Also, git-as-svn builtin LFS server is served through it
+  - !web
+
+    # git-as-svn base url. Leave empty for autodetect.
+    # Default: empty
+    #
+    # baseUrl: http://localhost:8123/
+
+    listen:
+      - !http {
+
+        # The network interface where git-as-svn web server binds to as an IP address or a hostname.  If 0.0.0.0, then bind to all interfaces.
+        # Default: localhost
+        #
+        # host: localhost
+
+        # Port where git-as-svn web server listens on.
+        # Default: 8123
+        #
+        # port: 8123
+
+        # HTTP idle timeout milliseconds. If not a single byte is sent or received over HTTP connection, git-as-svn closes it.
+        # -1 = Use Jetty default
+        # 0 = Disable timeout
+        # Default: -1
+        #
+        # idleTimeout: -1
+
+        # Tells git-as-svn to handle X-Forwarded-* headers.
+        # Enable this if git-as-svn web server is running behind reverse HTTP proxy (like nginx)
+        # Default: false
+        #
+        # forwarded: false
+      }
+
+  # Configures GitLab access for git-as-svn
+  - !gitlab
+
+    # GitLab base URL
+    # Default: http://localhost/
+    #
+    # url: http://localhost/
+
+    # Tells git-as-svn to use GitLab for LFS objects and file locking
+    # Default: !httpLfs {}
+    #
+    lfsMode: !fileLfs
+      # Directory where GitLab stores LFS ojects
+      path: /var/opt/gitlab/gitlab-rails/shared/lfs-objects
+
+    # GitLab access token
+    # Note that git-as-svn requires sudo access
+    token: <GitLab Access Token>
+
+    # Path to Gitaly socket file
+    # You normally do not need to change it
+    # Default: /var/opt/gitlab/gitaly/gitaly.socket
+    #
+    # gitalySocket: /var/opt/gitlab/gitaly/gitaly.socket
+
+    # Gitaly secret token
+    # This must match gitaly_token in /etc/gitlab/gitlab.rb
+    # You normally do not need to change it
+    # Default: secret token
+    #
+    # gitalyToken: secret token
+
+    # Path to Gitaly binaries dir
+    # You normally do not need to change it
+    # Default: /opt/gitlab/embedded/bin
+    #
+    # gitalyBinDir: /opt/gitlab/embedded/bin

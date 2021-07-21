@@ -1,0 +1,187 @@
+!config:
+
+# Specifies IP to listen to for svn:// connections
+# Default: 0.0.0.0
+#
+# host: 0.0.0.0
+
+# Specifies port number to listen to for svn:// connections
+# Default: 3690
+#
+# port: 3690
+
+# Subversion realm name. Subversion uses this for credentials caching
+# Default: git-as-svn realm
+#
+# realm: git-as-svn realm
+
+# Traffic compression level. Supported values: LZ4, Zlib, None
+# Default: LZ4
+#
+# compressionLevel: LZ4
+
+# If enabled, git-as-svn indexed repositories in parallel during startup
+# This results in higher memory usage so may require adjustments to JVM memory options
+# Default: true
+#
+# parallelIndexing: true
+
+# Sets cache location
+cacheConfig: !persistentCache
+  path: /var/cache/git-as-svn/git-as-svn.mapdb
+
+repositoryMapping: !listMapping
+  groups:
+    developers:
+      - test
+  repositories:
+    example:
+      access:
+        /:
+          # Asterisk (*) means all users
+          # $authenticated means authenticated users
+          # $anonymous means anonymous users
+          #
+          # Supported modes: r/rw/none. Empty string also means none
+          '*': r
+          '@developers': rw
+      repository:
+        # Allowed create modes:
+        # - ERROR - exit with error, if repository not exists
+        # - EMPTY - create empty repository
+        # - EXAMPLE - create repository with example data
+        createMode: EXAMPLE
+        branches:
+          - master
+        path: /var/git/repositories/example.git
+        renameDetection: true
+
+shared:
+  # Submodule list.
+  # You can define extra submodule path. Every path defined in "repositories" already included in submodule list.
+  - !submodules [
+  ]
+
+  # git-as-svn builtin web server
+  # It is used for GitLab system hook for repository creation/deletion notifications
+  # Also, git-as-svn builtin LFS server is served through it
+  - !web
+
+    # git-as-svn base url. Leave empty for autodetect.
+    # Default: empty
+    #
+    # baseUrl: http://localhost:8123/
+
+    listen:
+      - !http {
+
+        # The network interface where git-as-svn web server binds to as an IP address or a hostname.  If 0.0.0.0, then bind to all interfaces.
+        # Default: localhost
+        #
+        # host: localhost
+
+        # Port where git-as-svn web server listens on.
+        # Default: 8123
+        #
+        # port: 8123
+
+        # HTTP idle timeout milliseconds. If not a single byte is sent or received over HTTP connection, git-as-svn closes it.
+        # -1 = Use Jetty default
+        # 0 = Disable timeout
+        # Default: -1
+        #
+        # idleTimeout: -1
+
+        # Tells git-as-svn to handle X-Forwarded-* headers.
+        # Enable this if git-as-svn web server is running behind reverse HTTP proxy (like nginx)
+        # Default: false
+        #
+        # forwarded: false
+      }
+
+  # Git LFS server
+  - !localLfs
+    # Secret token for git-lfs-authenticate script
+    # secretToken:
+    path: /var/git/lfs
+
+# Simple in-memory user database
+userDB: !localUsers
+  users:
+    - username: test
+      # Clear-text password is required to perform CRAM-MD5 authentication
+      password: test
+      # Email and real name are used to create Git commits
+      email: test@noreply.fake
+      realName: Test User
+
+# Authenticates users against LDAP server
+#
+#userDB: !ldapUsers
+
+  # LDAP server URL
+  # It usually specifies the domain name of the directory server to connect to,
+  # and optionally the port number and distinguished name (DN) of the required root naming context.
+  # For secure connections, use ldaps://
+  #
+  # connectionUrl: ldap://localhost:389/ou=groups,dc=mycompany,dc=com
+
+  # Optional path to LDAP SSL certificate file for secure LDAP connections
+  #
+  # ldapCertPem: ldap.pem
+
+  # Pattern specifying the LDAP search filter to use after substitution of the username.
+  #
+  # searchFilter: (&(objectClass=person)(objectClass=user))
+
+  # LDAP bind configuration. git-as-svn accesses LDAP both on behalf of itself for checking that user is found by search filter
+  # and on behalf of user to test that user can successfully authenticate against LDAP server
+
+  # Performs SASL ANONYMOUS bind as described in RFC 4505
+  # This is default bind type.
+  #
+  # bind: !ANONYMOUS {}
+
+  # Performs SASL CRAM-MD5 bind as described in draft-ietf-sasl-crammd5
+  #
+  # bind: !CRAMMD5
+  #   authenticationID: <required>
+  #   password: <required>
+
+  # Performs SASL DIGEST-MD5 bind as described in RFC 2831
+  #
+  # bind: !DIGESTMD5
+  #   authenticationID: <required>
+  #   authorizationID: <optional>
+  #   password: <required>
+  #   realm: <optional>
+
+  # Performs SASL EXTERNAL bind as described in RFC 4422
+  #
+  # bind: !EXTERNAL
+  #   authenticationID: <optional>
+
+  # Performs SASL PLAIN bind as described in RFC 4616
+  #
+  # bind: !PLAIN
+  #   authenticationID: <required>
+  #   authorizationID: <optional>
+  #   password: <required>
+
+  # Performs LDAPv3 simple bind operation
+  #
+  # bind: !Simple
+  #   bindDn: <optional>
+  #   password: <optional>
+
+  # LDAP attribute, containing user login.
+  #
+  # loginAttribute: uid
+
+  # LDAP attribute, containing user name.
+  #
+  # nameAttribute: name
+
+  # LDAP attribute, containing user email.
+  #
+  # emailAttribute: mail
